@@ -4,6 +4,11 @@ const fs = require('fs').promises;
 const app = express();
 const port = 8080;
 
+//global variables to that represent 3 distinct json files
+const fileArtist = 'artists.json';
+const fileGallery = 'galleries.json';
+const filePaintings = 'nested.json';
+
 // Middleware to log requests to console messaging.
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
@@ -50,49 +55,44 @@ res.status(404).json({ error: `No data found for the specified criteria in ${req
 
 // Returns JSON for all artists. 
 app.get('/api/artists', async (req, res) => {
-  const filePath = 'artists.json';
   const filterFunction = (data) => data;
   const errorMessage = 'No artists found';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(fileArtist, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for all artists from the specified nationality 
 app.get('/api/artists/:country', async (req, res) => {
-  const filePath = 'artists.json';
   const filterFunction = (data, req) => {
     const requestedNationality = req.params.country.toLowerCase(); //Takes care of case sensitivity.
     return data.filter(artist => artist.Nationality.toLowerCase() === requestedNationality);
   };
   const errorMessage = 'No artists found for the specified country';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(fileArtist, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for all galleries
-app.get('/api/galleries', async (req, res) => {
-  const filePath = 'galleries.json';  
+app.get('/api/galleries', async (req, res) => { 
   const filterFunction = (data) => data;  
   const errorMessage = 'No galleries found'; 
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(fileGallery, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for all galleries from the specified country
 app.get('/api/galleries/:country', async (req, res) => {
-  const filePath = 'galleries.json';
   const filterFunction = (data, req) => {
     //More case sensitivity handling
     const requestedCountry = req.params.country.toLowerCase();
     return data.filter(gallery => gallery.GalleryCountry.toLowerCase() === requestedCountry);
   };
   const errorMessage = 'No galleries found for the specified country';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(fileGallery, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for all paintings from the nested file.
 app.get('/api/paintings', async (req, res) => {
-  const filePath = 'nested.json'; 
   const filterFunction = (data, req) => data;  // No filtering needed for all paintings
   const errorMessage = 'Error getting paintings';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for the single painting whose id matches the provided id
@@ -108,7 +108,7 @@ app.get('/api/painting/:paintingID', async (req, res) => {
     };
 
     const errorMessage = 'Painting not found';
-    await handleApiRequest('nested.json', filterFunction, errorMessage, req, res);
+    await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
   } catch (error) {
     console.error('Error reading JSON file:', error);
     res.status(500).send('Internal Server Error');
@@ -126,7 +126,7 @@ app.get('/api/painting/gallery/:galleryID', async (req, res) => {
     };
 
     const errorMessage = 'No paintings found for the specified galleryID';
-    await handleApiRequest('nested.json', filterFunction, errorMessage, req, res);
+    await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
   } catch (error) {
     console.error('Error reading JSON file:', error);
     res.status(500).send('Internal Server Error');
@@ -136,18 +136,16 @@ app.get('/api/painting/gallery/:galleryID', async (req, res) => {
 
 // Returns JSON for the paintings whose artist id matches the provided artist id (from the nested file)
 app.get('/api/painting/artist/:artistID', async (req, res) => {
-  const filePath = 'nested.json';  // Specify the JSON file path
   const filterFunction = (data, req) => {
     const requestedArtistID = parseInt(req.params.artistID, 10);
     return data.filter(painting => painting.artist && painting.artist.artistID === requestedArtistID);
   };
   const errorMessage = 'Error getting paintings by artist';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for paintings whose yearOfWork is between the provided min and max values (from the nested file).
 app.get('/api/painting/year/:min/:max', async (req, res) => {
-  const filePath = 'nested.json';
   const filterFunction = (data, req) => {
    
     const minYear = parseInt(req.params.min, 10);
@@ -161,23 +159,21 @@ app.get('/api/painting/year/:min/:max', async (req, res) => {
     );
   };
   const errorMessage = 'Error getting paintings by year range';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for paintings whose title contains the provided text (case-insensitive)
 app.get('/api/painting/title/:text', async (req, res) => {
-  const filePath = 'nested.json';
   const filterFunction = (data, req) => {
     const searchText = req.params.text.toLowerCase();
     return data.filter(painting => painting.title && painting.title.toLowerCase().includes(searchText));
   };
   const errorMessage = 'Error getting paintings by title';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
 });
 
 // Returns JSON for paintings that have a color matching the provided hex value (case-insensitive)
 app.get('/api/painting/color/:name', async (req, res) => {
-  const filePath = 'nested.json';
   const filterFunction = (data, req) => {
     const searchColorName = req.params.name.toLowerCase();
     //A good 40% of this assignment was troubleshooting why I couldn't properly access the dominantColors attribute.
@@ -196,7 +192,7 @@ app.get('/api/painting/color/:name', async (req, res) => {
     );
   };
   const errorMessage = 'Error getting paintings by color';
-  await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
+  await handleApiRequest(filePaintings, filterFunction, errorMessage, req, res);
 });
 
 // Starts the server up.
