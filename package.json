@@ -1,5 +1,15 @@
 {
+  "name": "Assignment 3 Node.JS",
+  "version": "1.0.0",
+  "main": "Assignment3.JS",
+  "scripts": {
+    "start": "node Assignment3.JS"
+  },
+{
   "dependencies": {
     "express": "^4.18.2"
+  }
+  "devDependencies": {
+    // Your dev dependencies here
   }
 }
