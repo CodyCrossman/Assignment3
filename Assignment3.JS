@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const fs = require('fs/promises');
 
@@ -91,7 +89,7 @@ app.get('/api/galleries/:country', async (req, res) => {
 
 // Returns JSON for all paintings from the nested file.
 app.get('/api/paintings', async (req, res) => {
-  const filePath = 'paintings-nested.JSON'; 
+  const filePath = 'nested.JSON'; 
   const filterFunction = (data, req) => data;  // No filtering needed for all paintings
   const errorMessage = 'Error getting paintings';
   await handleApiRequest(filePath, filterFunction, errorMessage, req, res);
@@ -110,7 +108,7 @@ app.get('/api/painting/:paintingID', async (req, res) => {
     };
 
     const errorMessage = 'Painting not found';
-    await handleApiRequest('paintings-nested.JSON', filterFunction, errorMessage, req, res);
+    await handleApiRequest('nested.JSON', filterFunction, errorMessage, req, res);
   } catch (error) {
     console.error('Error reading JSON file:', error);
     res.status(500).send('Internal Server Error');
@@ -128,7 +126,7 @@ app.get('/api/painting/gallery/:galleryID', async (req, res) => {
     };
 
     const errorMessage = 'No paintings found for the specified galleryID';
-    await handleApiRequest('paintings-nested.JSON', filterFunction, errorMessage, req, res);
+    await handleApiRequest('nested.JSON', filterFunction, errorMessage, req, res);
   } catch (error) {
     console.error('Error reading JSON file:', error);
     res.status(500).send('Internal Server Error');
@@ -138,7 +136,7 @@ app.get('/api/painting/gallery/:galleryID', async (req, res) => {
 
 // Returns JSON for the paintings whose artist id matches the provided artist id (from the nested file)
 app.get('/api/painting/artist/:artistID', async (req, res) => {
-  const filePath = 'paintings-nested.JSON';  // Specify the JSON file path
+  const filePath = 'nested.JSON';  // Specify the JSON file path
   const filterFunction = (data, req) => {
     const requestedArtistID = parseInt(req.params.artistID, 10);
     return data.filter(painting => painting.artist && painting.artist.artistID === requestedArtistID);
@@ -149,7 +147,7 @@ app.get('/api/painting/artist/:artistID', async (req, res) => {
 
 // Returns JSON for paintings whose yearOfWork is between the provided min and max values (from the nested file).
 app.get('/api/painting/year/:min/:max', async (req, res) => {
-  const filePath = 'paintings-nested.JSON';
+  const filePath = 'nested.JSON';
   const filterFunction = (data, req) => {
    
     const minYear = parseInt(req.params.min, 10);
@@ -168,7 +166,7 @@ app.get('/api/painting/year/:min/:max', async (req, res) => {
 
 // Returns JSON for paintings whose title contains the provided text (case-insensitive)
 app.get('/api/painting/title/:text', async (req, res) => {
-  const filePath = 'paintings-nested.JSON';
+  const filePath = 'nested.JSON';
   const filterFunction = (data, req) => {
     const searchText = req.params.text.toLowerCase();
     return data.filter(painting => painting.title && painting.title.toLowerCase().includes(searchText));
@@ -179,7 +177,7 @@ app.get('/api/painting/title/:text', async (req, res) => {
 
 // Returns JSON for paintings that have a color matching the provided hex value (case-insensitive)
 app.get('/api/painting/color/:name', async (req, res) => {
-  const filePath = 'paintings-nested.JSON';
+  const filePath = 'nested.JSON';
   const filterFunction = (data, req) => {
     const searchColorName = req.params.name.toLowerCase();
     //A good 40% of this assignment was troubleshooting why I couldn't properly access the dominantColors attribute.
